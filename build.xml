@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="phingtest" default="build">
+  <property name="basedir" value="${phing.dir}" />
+  <property name="appdir"  value="${basedir}/application" />
+  <property name="datadir" value="${basedir}/data" />
+  <property name="logdir"  value="${datadir}/build/logs" />
+  <target name="build" depends="clean,prepare,phpcs,phpmd,phpcpd,phpdoc,phpunit">
+  </target>
+  <target name="clean" description="clean">
+    <delete dir="${logdir}" />
+    <delete dir="${datadir}/build/coverage" />
+    <delete dir="${datadir}/build/phpdoc" />
+  </target>
+  <target name="prepare" description="prepare">
+    <mkdir dir="${logdir}" />
+    <mkdir dir="${datadir}/build/coverage" />
+    <mkdir dir="${datadir}/build/phpdoc" />
+  </target>
+  <target name="phpcs" description="PHPCS">
+    <phpcodesniffer standard="Zend" file="${appdir}/" allowedFileExtensions="php">
+      <formatter type="checkstyle" outfile="${logdir}/phpcs.xml" />
+    </phpcodesniffer>
+  </target>
+  <target name="phpmd" description="PHPMD">
+    <exec dir="${basedir}" executable="phpmd" output="${logdir}/phpmd.log">
+      <arg line="${appdir}" />
+      <arg line="xml" />
+      <arg line="${basedir}/phpmd-rule.xml" />
+      <arg line="--reportfile ${logdir}/phpmd.xml" />
+      <arg line="--suffixes php" />
+    </exec>
+  </target>
+  <target name="phpcpd" description="PHPCPD">
+    <exec dir="${basedir}" executable="phpcpd" output="${logdir}/phpcpd.log">
+      <arg line="--log-pmd ${logdir}/phpcpd.xml" />
+      <arg line="--names *.php,*.phtml" />
+      <arg line="${appdir}" />
+    </exec>
+  </target>
+  <target name="phpdoc" description="Generate Application Documentation using PHPDocumentor2">
+    <exec dir="${basedir}" executable="phpdoc" output="${logdir}/phpdoc.log">
+      <arg line="run" />
+      <arg line="-t ${datadir}/build/phpdoc" />
+      <arg line="-d ${appdir}" />
+      <arg line="-p" />
+    </exec>
+  </target>
+  <target name="phpunit" description="run phpunit">
+    <exec dir="${basedir}/tests" executable="phpunit" output="${logdir}/phpunit.log">
+      <arg line="--configuration=${basedir}/tests/phpunit.xml" />
+      <arg line="--log-junit=${logdir}/phpunit.xml" />
+      <arg line="--coverage-html=${datadir}/build/coverage/" />
+      <arg line="--coverage-clover=${logdir}/coverage.xml" />
+    </exec>
+  </target>
+</project>

@@ -1,4 +1,5 @@
 <?php
+require_once "../vendor/autoload.php";
 
 // Define path to application directory
 defined('APPLICATION_PATH')
